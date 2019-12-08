@@ -1,30 +1,41 @@
 extern crate indicatif;
 extern crate rand;
 
+use indicatif::ProgressBar;
 use rand::prelude::*;
 use std::collections::BTreeMap;
 use std::fmt;
 
-fn main() {
-    let pokemon_num = 500;
+const BOX_MAX: u32 = 960;
+const SIMULATION_MAX: u64 = 100;
 
+fn main() {
     let mut pokemon_ids_base = (0u32..1_000_000).collect::<Vec<_>>();
     let mut rng = rand::thread_rng();
     pokemon_ids_base.shuffle(&mut rng);
 
-    let pokemon_ids: &[u32] = &pokemon_ids_base[..pokemon_num];
-    println!("{:?}", pokemon_ids);
+    let pb_pokemon_num = ProgressBar::new(BOX_MAX as u64);
 
-    let simulation_max = 10000;
-    let pb = indicatif::ProgressBar::new(simulation_max);
-    let mut sim_result = SimulationResult::default();
-    for _ in 0..simulation_max {
-        let rnd_number: u32 = rng.gen_range(0, 100_000);
-        let result = simulate_oneday(pokemon_ids, rnd_number);
-        sim_result.add_count(result);
-        pb.inc(1);
+    let mut results = Vec::with_capacity(BOX_MAX as usize);
+
+    // TODO parallel
+    for pokemon_num in 900..=BOX_MAX as usize {
+        let pokemon_ids: &[u32] = &pokemon_ids_base[..pokemon_num];
+        let pb_day_num = ProgressBar::new(SIMULATION_MAX);
+        let mut sim_result = SimulationResult::default();
+        for _ in 0..SIMULATION_MAX {
+            let rnd_number: u32 = rng.gen_range(0, 100_000);
+            let result = simulate_oneday(pokemon_ids, rnd_number);
+            sim_result.add_count(result);
+            pb_day_num.inc(1);
+        }
+        results.push(sim_result);
+        pb_pokemon_num.inc(1);
     }
-    sim_result.show();
+
+    for r in &results {
+        r.show();
+    }
 }
 
 #[derive(Debug, Default)]
@@ -44,7 +55,7 @@ impl SimulationResult {
         println!("The number of simulations: {}\n", self.simulation_count);
         for (k, &v) in &self.award_count {
             println!(
-                "{}\t{}\t{:.2}%",
+                "{}\t{:>3}\t{:5.2}%",
                 k,
                 v,
                 (v as f64 / self.simulation_count as f64) * 100.1
@@ -67,7 +78,7 @@ impl fmt::Display for Award {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "{}",
+            "{:<11}",
             match self {
                 Award::First => "Master Ball",
                 Award::Second => "Rare Candy",
@@ -80,6 +91,7 @@ impl fmt::Display for Award {
     }
 }
 
+// TODO: test this function
 fn simulate_oneday(ids: &[u32], number_this_day: u32) -> Award {
     let mut award = Award::Losing;
     let win_number = format!("{:05}", number_this_day);
