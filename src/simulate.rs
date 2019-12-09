@@ -1,5 +1,6 @@
+use indicatif::ParallelProgressIterator;
 use rand::prelude::*;
-use rand::rngs::StdRng;
+use rayon::prelude::*;
 
 use crate::award::Award;
 use crate::result::SimulationResult;
@@ -10,21 +11,25 @@ pub fn exec_simulation(
     step: usize,
     pokemon_ids_base: &[u32],
     num_trials: usize,
-    rng: &mut StdRng,
 ) -> Vec<SimulationResult> {
-    let mut results = Vec::with_capacity(BOX_MAX as usize);
-
-    for pokemon_num in (1..=BOX_MAX as usize).step_by(step) {
-        let pokemon_ids = &pokemon_ids_base[..pokemon_num];
-        let mut sim_result = SimulationResult::default();
-        for _ in 0..num_trials {
-            let rnd_number: u32 = rng.gen_range(0, 100_000);
-            let result = simulate_oneday(pokemon_ids, rnd_number);
-            sim_result.add_count(result);
-        }
-        results.push(sim_result);
-    }
-    results
+    (1..=BOX_MAX as usize)
+        .into_par_iter()
+        .progress()
+        .filter(|pokemon_num| pokemon_num % step == 0)
+        .map_init(
+            || rand::thread_rng(),
+            |rng, pokemon_num| {
+                let pokemon_ids = &pokemon_ids_base[..pokemon_num];
+                let mut sim_result = SimulationResult::default();
+                for _ in 0..num_trials {
+                    let rnd_number: u32 = rng.gen_range(0, 100_000);
+                    let result = simulate_oneday(pokemon_ids, rnd_number);
+                    sim_result.add_count(result);
+                }
+                sim_result
+            },
+        )
+        .collect()
 }
 
 // TODO: test this function

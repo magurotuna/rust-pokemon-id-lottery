@@ -1,5 +1,3 @@
-use indicatif::ProgressBar;
-
 mod award;
 mod result;
 mod rng;
@@ -16,6 +14,8 @@ struct Opts {
     num_trials: usize,
     #[clap(short = "s", long = "step", default_value = "20")]
     step_by: usize,
+    #[clap(short = "p", long = "print")]
+    print: bool,
 }
 
 fn main() {
@@ -26,10 +26,12 @@ fn main() {
 
     let pokemon_ids_base = shuffle::get_shuffled_ids(&mut rng);
 
-    let results =
-        simulate::exec_simulation(opts.step_by, &pokemon_ids_base, opts.num_trials, &mut rng);
+    let results = simulate::exec_simulation(opts.step_by, &pokemon_ids_base, opts.num_trials);
 
-    for r in &results {
-        r.show();
+    if opts.print {
+        for r in &results {
+            r.show();
+            println!("\n---------------------------------------\n");
+        }
     }
 }
