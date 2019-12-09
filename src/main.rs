@@ -33,5 +33,10 @@ fn main() {
             r.show();
             println!("\n---------------------------------------\n");
         }
+    } else {
+        println!("pokemon_num,first,second,third,fourth,fifth,nothing");
+        for r in &results {
+            r.to_csv();
+        }
     }
 }

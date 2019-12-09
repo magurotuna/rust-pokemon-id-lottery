@@ -20,7 +20,7 @@ pub fn exec_simulation(
             || rand::thread_rng(),
             |rng, pokemon_num| {
                 let pokemon_ids = &pokemon_ids_base[..pokemon_num];
-                let mut sim_result = SimulationResult::default();
+                let mut sim_result = SimulationResult::new(pokemon_num as u32);
                 for _ in 0..num_trials {
                     let rnd_number: u32 = rng.gen_range(0, 100_000);
                     let result = simulate_oneday(pokemon_ids, rnd_number);
