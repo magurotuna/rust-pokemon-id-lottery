@@ -12,9 +12,9 @@ extern crate clap;
 #[derive(Clap)]
 #[clap(version = "0.1.0", author = "maguro_tuna")]
 struct Opts {
-    #[clap(short = "t", long = "trial", default_value = "100000")]
+    #[clap(short = "t", long = "trial", default_value = "10000")]
     num_trials: usize,
-    #[clap(short = "s", long = "step", default_value = "5")]
+    #[clap(short = "s", long = "step", default_value = "20")]
     step_by: usize,
 }
 
