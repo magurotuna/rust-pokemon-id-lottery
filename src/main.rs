@@ -20,6 +20,14 @@ struct Opts {
     #[clap(short = "s", long = "step", default_value = "20")]
     step_by: usize,
 
+    /// Simulation begins from this number.
+    #[clap(short = "b", long = "begin", default_value = "1")]
+    begin_from: usize,
+
+    /// Simulation finishes at this number.
+    #[clap(short = "e", long = "end", default_value = "960")]
+    end_at: usize,
+
     /// File that results output to.
     #[clap(short = "o", long = "output", default_value = "result.csv")]
     output_file_path: String,
@@ -36,12 +44,18 @@ struct Opts {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opts: Opts = Opts::parse();
 
-    let seed: [u8; 32] = [42; 32];
+    let seed: [u8; 32] = [42; 32]; // TODO: make seed changable
     let mut rng = rng::make_rng(Some(seed));
 
     let pokemon_ids_base = shuffle::get_shuffled_ids(&mut rng);
 
-    let results = simulate::exec_simulation(opts.step_by, &pokemon_ids_base, opts.num_trials);
+    let results = simulate::exec_simulation(
+        opts.begin_from,
+        opts.end_at,
+        opts.step_by,
+        &pokemon_ids_base,
+        opts.num_trials,
+    );
 
     if opts.print {
         output::print_stdout(&results);

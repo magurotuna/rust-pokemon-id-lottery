@@ -5,14 +5,14 @@ use rayon::prelude::*;
 use crate::award::Award;
 use crate::result::SimulationResult;
 
-const BOX_MAX: u32 = 960;
-
 pub fn exec_simulation(
+    start: usize,
+    end: usize,
     step: usize,
     pokemon_ids_base: &[u32],
     num_trials: usize,
 ) -> Vec<SimulationResult> {
-    (1..=BOX_MAX as usize)
+    (start..=end)
         .into_par_iter()
         .progress()
         .filter(|pokemon_num| pokemon_num % step == 0)
