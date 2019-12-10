@@ -43,7 +43,7 @@ impl SimulationResult {
         }
     }
 
-    pub fn to_csv(&self) {
+    pub fn to_csv(&self) -> String {
         let &first = self.award_count.get(&Award::First).unwrap();
         let &second = self.award_count.get(&Award::Second).unwrap();
         let &third = self.award_count.get(&Award::Third).unwrap();
@@ -52,7 +52,7 @@ impl SimulationResult {
         let &nothing = self.award_count.get(&Award::Losing).unwrap();
 
         let to_prob = |count: u32| (count as f64 / self.simulation_count as f64) * 100.0;
-        println!(
+        format!(
             "{num},{first:.2},{second:.2},{third:.2},{fourth:.2},{fifth:.2},{nothing:.2}",
             num = self.pokemon_num,
             first = to_prob(first),
@@ -61,7 +61,7 @@ impl SimulationResult {
             fourth = to_prob(fourth),
             fifth = to_prob(fifth),
             nothing = to_prob(nothing),
-        );
+        )
     }
 }
 
