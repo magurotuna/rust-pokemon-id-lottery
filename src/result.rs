@@ -67,7 +67,7 @@ impl SimulationResult {
 
 #[test]
 fn test_add_count() {
-    let mut result = SimulationResult::default();
+    let mut result = SimulationResult::new(100);
     assert_eq!(result.simulation_count, 0);
 
     result.add_count(Award::First);
@@ -75,5 +75,5 @@ fn test_add_count() {
     result.add_count(Award::First);
     assert_eq!(result.award_count.get(&Award::First), Some(&2));
 
-    assert_eq!(result.award_count.get(&Award::Second), None);
+    assert_eq!(result.award_count.get(&Award::Second), Some(&0));
 }
