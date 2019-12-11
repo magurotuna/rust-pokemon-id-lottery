@@ -1,4 +1,5 @@
 use indicatif::ParallelProgressIterator;
+use indicatif::ProgressBar;
 use rand::prelude::*;
 use rayon::prelude::*;
 
@@ -14,7 +15,7 @@ pub fn exec_simulation(
 ) -> Vec<SimulationResult> {
     (start..=end)
         .into_par_iter()
-        .progress()
+        .progress_with(ProgressBar::new((end - start + 1) as u64))
         .filter(|pokemon_num| pokemon_num % step == 0)
         .map_init(
             || rand::thread_rng(),
