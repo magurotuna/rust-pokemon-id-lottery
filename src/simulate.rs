@@ -16,7 +16,7 @@ pub fn exec_simulation(
     (start..=end)
         .into_par_iter()
         .progress_with(ProgressBar::new((end - start + 1) as u64))
-        .filter(|pokemon_num| pokemon_num % step == 0)
+        .filter(|pokemon_num| (pokemon_num - start) % step == 0)
         .map_init(
             || rand::thread_rng(),
             |rng, pokemon_num| {
